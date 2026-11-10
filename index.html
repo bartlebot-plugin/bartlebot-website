@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BartleBot: a litigation toolkit for Claude</title>
+<meta name="description" content="BartleBot is a plugin for Claude that keeps a structured litigation case file, tracks deadlines, and drafts briefs, discovery, and hearing notebooks under attorney review.">
+<link rel="icon" href="assets/icon.png">
+<style>
+  :root {
+    --paper: #f1e9d9;
+    --paper-light: #fbf6ea;
+    --ink: #2b2320;
+    --ink-soft: #5a4d45;
+    --oxblood: #6b2a2a;
+    --brass: #8c6a2f;
+    --brass-light: #c9a45c;
+    --lamp: #4e6b3a;
+    --rule: #d8cbb0;
+    --display: Georgia, "Times New Roman", "Liberation Serif", serif;
+    --text: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body { margin: 0; background: var(--paper-light); color: var(--ink); font-family: var(--text); font-size: 1.0625rem; line-height: 1.6; }
+  a { color: var(--oxblood); }
+  a:focus-visible, .button:focus-visible { outline: 3px solid var(--lamp); outline-offset: 3px; }
+  .wrap { max-width: 68rem; margin: 0 auto; padding: 0 1.5rem; }
+
+  .masthead { background: var(--paper); }
+  .masthead nav { display: flex; justify-content: flex-end; gap: 1.75rem; padding: 1rem 0 0; font-size: 0.95rem; }
+  .masthead nav a { color: var(--ink); text-decoration: none; border-bottom: 1px solid transparent; }
+  .masthead nav a:hover { border-bottom-color: var(--oxblood); }
+  .banner { display: block; width: 100%; height: auto; }
+  .ledge { background: var(--oxblood); color: var(--paper-light); }
+  .ledge .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem 2rem; padding-top: 1.5rem; padding-bottom: 1.5rem; }
+  .ledge h1 { font-family: var(--display); font-weight: 400; font-size: clamp(1.35rem, 2.6vw, 1.9rem); line-height: 1.25; margin: 0; max-width: 34rem; }
+  .button { display: inline-block; background: var(--lamp); color: #fff; text-decoration: none; font-weight: 600; padding: 0.8rem 1.4rem; border-radius: 3px; border: 2px solid var(--ink); }
+  .button:hover { background: #3f5830; }
+
+  main section { padding: 4rem 0; }
+  h2 { font-family: var(--display); font-size: clamp(1.6rem, 3vw, 2.1rem); line-height: 1.2; margin: 0 0 1rem; }
+  h3 { font-family: var(--display); font-size: 1.3rem; line-height: 1.25; margin: 0 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 40rem; }
+  .lede { font-size: 1.2rem; color: var(--ink-soft); }
+
+  .about .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+  .about ul { margin: 0; padding: 0; list-style: none; border-top: 2px solid var(--ink); }
+  .about li { padding: 0.7rem 0; border-bottom: 1px solid var(--rule); }
+
+  .feature { background: var(--paper); }
+  .feature + .feature { padding-top: 0; }
+  .feature .text { max-width: 44rem; margin-bottom: 1.75rem; }
+  figure { margin: 0; }
+  figure img { display: block; width: 100%; height: auto; border: 2px solid var(--ink); border-radius: 4px; box-shadow: 8px 8px 0 var(--brass-light); background: #fff; }
+  figcaption { margin-top: 1.1rem; font-size: 0.875rem; color: var(--ink-soft); }
+
+  .more .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem 3rem; margin-top: 2rem; }
+  .more .grid p { margin: 0; }
+  .more .grid > div { border-top: 2px solid var(--brass); padding-top: 1rem; }
+  .more figure { margin-top: 1.25rem; }
+  .more figure a { display: block; }
+  .more figure img { aspect-ratio: 4 / 3; object-fit: cover; object-position: top left; box-shadow: 5px 5px 0 var(--brass-light); }
+  .more figcaption { margin-top: 0.8rem; }
+  .more .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .more .pair img { aspect-ratio: 2 / 3; box-shadow: 4px 4px 0 var(--brass-light); }
+
+  .terms { background: var(--paper); }
+  .terms .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
+  .terms h3 { margin-top: 0; }
+
+  .trial { text-align: left; }
+  .trial .box { border: 2px solid var(--ink); background: #fff; padding: 2.25rem; max-width: 44rem; box-shadow: 8px 8px 0 var(--oxblood); }
+  .trial ol { padding-left: 1.2rem; margin: 0 0 1.5rem; }
+  .trial li { margin-bottom: 0.35rem; }
+
+  footer { background: var(--oxblood); color: var(--paper); font-size: 0.875rem; padding: 2.5rem 0; }
+  footer p { max-width: 52rem; margin-bottom: 0.6rem; }
+  footer a { color: var(--paper-light); }
+
+  @media (max-width: 760px) {
+    .about .wrap, .terms .wrap, .more .grid { grid-template-columns: 1fr; gap: 2rem; }
+    .masthead nav { justify-content: flex-start; gap: 1.1rem; flex-wrap: wrap; }
+    main section { padding: 2.75rem 0; }
+    figure img { box-shadow: 5px 5px 0 var(--brass-light); }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav aria-label="Page sections">
+      <a href="#what">What it does</a>
+      <a href="#terms">How it runs</a>
+      <a href="#trial">Request a trial</a>
+    </nav>
+  </div>
+  <div class="wrap">
+    <img class="banner" src="assets/banner.png" width="1500" height="500" alt="BartleBot: For the work you would prefer not to do. A brass robot clerk in spectacles and a bowler hat writes at a desk with a quill.">
+  </div>
+  <div class="ledge">
+    <div class="wrap">
+      <h1>A litigation toolkit that runs inside Claude and keeps your case file in order.</h1>
+      <a class="button" href="#trial">Request a free trial</a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section class="about" id="what">
+  <div class="wrap">
+    <div>
+      <h2>A clerk for the case file</h2>
+      <p class="lede">BartleBot&trade; is a plugin for Claude, built for litigation attorneys and paralegals.</p>
+      <p>It keeps a structured case file for every matter in a folder you control. It reads what comes in, files it, and updates the chronology, the docket, the deadlines, and the task list. Then it uses that file to draft.</p>
+      <p>Every draft goes through you. BartleBot outlines first, drafts section by section, and waits for your approval at each step. Its instructions tell it to mark any fact or citation it cannot verify with a visible placeholder instead of guessing.</p>
+    </div>
+    <ul>
+      <li>Drafts briefs: outline first, then section by section</li>
+      <li>Researches and summarizes authorities</li>
+      <li>Drafts and answers written discovery and meet-and-confer letters</li>
+      <li>Prepares deposition outlines, hearing notebooks, and trial notebooks</li>
+      <li>Files incoming documents and keeps the calendar and task list current</li>
+      <li>Produces Word documents on your firm's templates, proofread and cite checked</li>
+      <li>Writes client updates, status briefings, a daily brief, and draft time entries</li>
+    </ul>
+  </div>
+</section>
+
+<section class="feature">
+  <div class="wrap">
+    <div class="text">
+      <h2>Every case on one page</h2>
+      <p>The Case Dashboard shows each active matter with its stage and its next deadlines, drawn from the case files. It also shows the week's calendar and open tasks. A solo lawyer sees everything; a team shares one dashboard.</p>
+    </div>
+    <figure>
+      <img src="assets/dashboard.png" width="1600" height="1421" alt="Case Dashboard showing this week's calendar and to-dos above six demonstration cases, each with its court, litigation stage, and upcoming deadlines." loading="lazy">
+      <figcaption>Demonstration built from public court records. The law firm and its work product are fictional.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="feature">
+  <div class="wrap">
+    <div class="text">
+      <h2>The chronology, filtered to the question in front of you</h2>
+      <p>BartleBot tags each event in the chronology by issue and by witness, with a citation to its source. Filter to one issue or one witness and you have a mini-chronology for a deposition or a brief. The docket gets the same treatment, sorted by pleadings, dispositive motions, and discovery motions.</p>
+    </div>
+    <figure>
+      <img src="assets/chronology.png" width="1600" height="1058" alt="Chronology view for a demonstration case, with filters for issues and witnesses and a list of events, each with source citations." loading="lazy">
+      <figcaption>Demonstration built from public court records. The law firm and its work product are fictional.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="more">
+  <div class="wrap">
+    <h2>What else it handles</h2>
+    <div class="grid">
+      <div>
+        <h3>Brief drafting, in Word</h3>
+        <p>Motions, responses, and replies drafted to an outline you approve, then delivered as Word documents on your own pleading templates.</p>
+        <figure>
+          <div class="pair">
+            <a href="assets/brief-cover-page.png"><img src="assets/brief-cover-page.png" width="1202" height="1556" alt="Caption page of a demonstration reply brief on numbered pleading paper, with the counsel block, court, case number, and hearing details." loading="lazy"></a>
+            <a href="assets/brief-page-one.png"><img src="assets/brief-page-one.png" width="1190" height="1554" alt="First argument page of the same demonstration reply brief, with outline-numbered headings and citations." loading="lazy"></a>
+          </div>
+          <figcaption>Demonstration built from public court records. The law firm and its work product are fictional. Select either image to see it full size.</figcaption>
+        </figure>
+      </div>
+      <div>
+        <h3>Cite-checking</h3>
+        <p>Every citation checked for form, every quotation checked against the source, and every cited page checked for support. BartleBot asks for any source it does not have.</p>
+        <figure>
+          <a href="assets/cite-check.png"><img src="assets/cite-check.png" width="1600" height="1440" alt="Cite-check report for a demonstration brief: totals of citations checked and errors found, and a change log listing each correction with its location, severity, original text, and corrected text." loading="lazy"></a>
+          <figcaption>Demonstration built from public court records. The law firm and its work product are fictional. Select the image to see it full size.</figcaption>
+        </figure>
+      </div>
+      <div>
+        <h3>Hearing notebooks</h3>
+        <p>The motions, the key authorities, and an index, assembled into a tabbed, print-ready binder for the lawyer who will argue.</p>
+        <figure>
+          <a href="assets/hearing-notebook.png"><img src="assets/hearing-notebook.png" width="1600" height="812" alt="Hearing notebook indexes for a demonstration case: an index of documents by tab and filing date, and an index of authorities by tab." loading="lazy"></a>
+          <figcaption>Demonstration built from public court records. The law firm and its work product are fictional. Select the image to see it full size.</figcaption>
+        </figure>
+      </div>
+      <div>
+        <h3>The inbox</h3>
+        <p>Drop a new filing or letter into one folder. BartleBot identifies it, files it in the right case, updates the case file, and proposes the deadlines and tasks that follow from it.</p>
+        <figure>
+          <a href="assets/inbox.png"><img src="assets/inbox.png" width="1600" height="1328" alt="Inbox processing report for a demonstration case, listing the document filed, the case files updated, and the resulting tasks and calendar entries." loading="lazy"></a>
+          <figcaption>Demonstration built from public court records. The law firm and its work product are fictional. Select the image to see it full size.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="terms" id="terms">
+  <div class="wrap">
+    <div>
+      <h2>How it runs</h2>
+      <h3>In your Claude account</h3>
+      <p>BartleBot is a set of instructions and templates that run inside your own Claude subscription and the apps you connect to it. You need a Claude plan that supports plugins.</p>
+      <h3>On your files</h3>
+      <p>Your case files stay in your folder. BartleBot's author does not receive or have access to your data. Whether to use an AI tool on client matters is your decision under the rules that govern your practice.</p>
+    </div>
+    <div>
+      <h2>Your responsibility</h2>
+      <h3>You review everything</h3>
+      <p>BartleBot is a drafting and organizing tool. It is not a law firm and does not give legal advice. You are responsible for reviewing and verifying everything it produces, including citations, quotations, facts, and deadlines.</p>
+      <h3>Free during evaluation</h3>
+      <p>BartleBot is in a free evaluation period under a short <a href="license.html">evaluation license</a>. Feedback from working lawyers is the point of the evaluation.</p>
+    </div>
+  </div>
+</section>
+
+<section class="trial" id="trial">
+  <div class="wrap">
+    <div class="box">
+      <h2>Request a free trial</h2>
+      <p>BartleBot is shared by invitation during the evaluation period. To ask for an invitation, complete a short request form.</p>
+      <a class="button" href="https://docs.google.com/forms/d/e/1FAIpQLSfOetjUEhafq3QSmWn3RQnXPrtexauhEsavm58cnkVfd4WN7A/viewform">Open the request form</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>&copy; 2026 Amy E. Tabor. BartleBot&trade; is a trademark of Amy E. Tabor.</p>
+    <p>Claude is a trademark of Anthropic, PBC. BartleBot is an independent product and is not affiliated with, sponsored by, or endorsed by Anthropic.</p>
+    <p>Screenshots show a demonstration built from public court records. The law firm shown is fictional, and the notes and work product shown were created for demonstration only. They do not reflect the views of any party or counsel in those cases.</p>
+    <p>Contact: <a href="mailto:bartlebot.plugin@gmail.com">bartlebot.plugin@gmail.com</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
