@@ -29,9 +29,14 @@
   .wrap { max-width: 68rem; margin: 0 auto; padding: 0 1.5rem; }
 
   .masthead { background: var(--paper); }
-  .masthead nav { display: flex; justify-content: flex-end; gap: 1.75rem; padding: 1rem 0 0; font-size: 0.95rem; }
-  .masthead nav a { color: var(--ink); text-decoration: none; border-bottom: 1px solid transparent; }
-  .masthead nav a:hover { border-bottom-color: var(--oxblood); }
+  .masthead nav { display: flex; justify-content: flex-end; gap: 0.7rem; padding: 1.1rem 0 0.35rem; }
+  .masthead nav a { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.38rem 1rem 0.44rem 0.75rem; font-family: var(--display); font-style: italic; font-size: 1.05rem; line-height: 1.2; color: var(--paper-light); text-decoration: none; background: var(--spine); border: 2.5px solid var(--ink); border-radius: 6px; box-shadow: 3px 3px 0 var(--brass-light); transition: transform 0.12s ease, box-shadow 0.12s ease; }
+  .masthead nav a::before { content: ""; flex: none; width: 0.85rem; height: 0.42rem; border-top: 2px solid var(--brass-light); border-bottom: 2px solid var(--brass-light); }
+  .masthead nav a:nth-child(1) { --spine: #3d4d63; }
+  .masthead nav a:nth-child(2) { --spine: var(--oxblood); }
+  .masthead nav a:nth-child(3) { --spine: var(--lamp); }
+  .masthead nav a:hover { transform: translate(-1px, -2px); box-shadow: 5px 6px 0 var(--brass-light); }
+  @media (prefers-reduced-motion: reduce) { .masthead nav a { transition: none; } .masthead nav a:hover { transform: none; } }
   .banner { display: block; width: 100%; height: auto; }
   .ledge { background: var(--oxblood); color: var(--paper-light); }
   .ledge .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem 2rem; padding-top: 1.5rem; padding-bottom: 1.5rem; }
@@ -81,7 +86,9 @@
 
   @media (max-width: 760px) {
     .about .wrap, .terms .wrap, .more .grid { grid-template-columns: 1fr; gap: 2rem; }
-    .masthead nav { justify-content: flex-start; gap: 1.1rem; flex-wrap: wrap; }
+    .masthead nav { justify-content: flex-start; gap: 0.45rem; flex-wrap: wrap; }
+    .masthead nav a { font-size: 0.92rem; padding: 0.32rem 0.65rem 0.38rem; box-shadow: 2px 2px 0 var(--brass-light); }
+    .masthead nav a::before { display: none; }
     main section { padding: 2.75rem 0; }
     figure img { box-shadow: 5px 5px 0 var(--brass-light); }
   }
@@ -228,7 +235,7 @@
         <li>Your state and practice area</li>
         <li>The email address to invite</li>
       </ol>
-      <a class="button" href="mailto:amyetabor@gmail.com?subject=BartleBot%20trial%20request">Email a trial request</a>
+      <a class="button" href="mailto:hello@bartlebot.com?subject=BartleBot%20trial%20request">Email a trial request</a>
     </div>
   </div>
 </section>
@@ -240,7 +247,7 @@
     <p>&copy; 2026 Amy E. Tabor. BartleBot&trade; is a trademark of Amy E. Tabor.</p>
     <p>Claude is a trademark of Anthropic, PBC. BartleBot is an independent product and is not affiliated with, sponsored by, or endorsed by Anthropic.</p>
     <p>Screenshots show a demonstration built from public court records. The law firm shown is fictional, and the notes and work product shown were created for demonstration only. They do not reflect the views of any party or counsel in those cases.</p>
-    <p>Contact: <a href="mailto:amyetabor@gmail.com">amyetabor@gmail.com</a></p>
+    <p>Contact: <a href="mailto:hello@bartlebot.com">hello@bartlebot.com</a></p>
     <p><a href="license.html">Evaluation license</a> and <a href="privacy.html">privacy notice</a></p>
   </div>
 </footer>
